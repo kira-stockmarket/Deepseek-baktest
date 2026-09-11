@@ -1,7 +1,7 @@
 {
-  "evaluation_timestamp": "2026-09-11 21:29:08 UTC",
-  "total_days_evaluated": 4612,
-  "overall_model_accuracy_5D": 56.03,
+  "evaluation_timestamp": "2026-09-11 21:47:49 UTC",
+  "total_days_evaluated": 4556,
+  "overall_model_accuracy_5D": 52.61,
   "definition_of_correct": {
     "Bull_Regimes": "Market went UP over the next 5 days",
     "Bear_Regimes": "Market went DOWN over the next 5 days",
@@ -10,27 +10,35 @@
   "regime_performance_breakdown": [
     {
       "regime_name": "High_Conviction_Bull",
-      "total_occurrences": 2734,
-      "prediction_hit_rate_5D": 55.82,
-      "average_forward_1_day_return": 0.029,
-      "average_forward_5_day_return": 0.153,
-      "average_forward_20_day_return": 0.586
+      "total_occurrences": 1616,
+      "prediction_hit_rate_5D": 56.37,
+      "average_forward_1_day_return": 0.037,
+      "average_forward_5_day_return": 0.199,
+      "average_forward_20_day_return": 0.591
     },
     {
-      "regime_name": "Sideways_Chop",
-      "total_occurrences": 1354,
-      "prediction_hit_rate_5D": 56.65,
-      "average_forward_1_day_return": 0.054,
-      "average_forward_5_day_return": 0.213,
-      "average_forward_20_day_return": 0.684
+      "regime_name": "Steady_Uptrend",
+      "total_occurrences": 1374,
+      "prediction_hit_rate_5D": 57.64,
+      "average_forward_1_day_return": 0.046,
+      "average_forward_5_day_return": 0.179,
+      "average_forward_20_day_return": 0.899
     },
     {
-      "regime_name": "Grinding_Uptrend",
-      "total_occurrences": 524,
-      "prediction_hit_rate_5D": 55.53,
-      "average_forward_1_day_return": 0.063,
-      "average_forward_5_day_return": 0.4,
-      "average_forward_20_day_return": 2.147
+      "regime_name": "Bearish_Distribution",
+      "total_occurrences": 1001,
+      "prediction_hit_rate_5D": 53.55,
+      "average_forward_1_day_return": 0.009,
+      "average_forward_5_day_return": 0.101,
+      "average_forward_20_day_return": 0.864
+    },
+    {
+      "regime_name": "Sideways_Consolidation",
+      "total_occurrences": 565,
+      "prediction_hit_rate_5D": 27.96,
+      "average_forward_1_day_return": 0.079,
+      "average_forward_5_day_return": 0.42,
+      "average_forward_20_day_return": 1.294
     }
   ]
 }
