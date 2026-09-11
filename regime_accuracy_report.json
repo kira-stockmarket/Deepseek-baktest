@@ -1,0 +1,36 @@
+{
+  "evaluation_timestamp": "2026-09-11 21:29:08 UTC",
+  "total_days_evaluated": 4612,
+  "overall_model_accuracy_5D": 56.03,
+  "definition_of_correct": {
+    "Bull_Regimes": "Market went UP over the next 5 days",
+    "Bear_Regimes": "Market went DOWN over the next 5 days",
+    "Sideways": "Market stayed within a +/- 1.5% range over the next 5 days"
+  },
+  "regime_performance_breakdown": [
+    {
+      "regime_name": "High_Conviction_Bull",
+      "total_occurrences": 2734,
+      "prediction_hit_rate_5D": 55.82,
+      "average_forward_1_day_return": 0.029,
+      "average_forward_5_day_return": 0.153,
+      "average_forward_20_day_return": 0.586
+    },
+    {
+      "regime_name": "Sideways_Chop",
+      "total_occurrences": 1354,
+      "prediction_hit_rate_5D": 56.65,
+      "average_forward_1_day_return": 0.054,
+      "average_forward_5_day_return": 0.213,
+      "average_forward_20_day_return": 0.684
+    },
+    {
+      "regime_name": "Grinding_Uptrend",
+      "total_occurrences": 524,
+      "prediction_hit_rate_5D": 55.53,
+      "average_forward_1_day_return": 0.063,
+      "average_forward_5_day_return": 0.4,
+      "average_forward_20_day_return": 2.147
+    }
+  ]
+}
