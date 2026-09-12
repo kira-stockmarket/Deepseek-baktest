@@ -1,0 +1,81 @@
+name: 140-Node Sectoral Hive Mind
+
+on:
+  schedule:
+    # Runs at 03:00 UTC (8:30 AM IST), Monday through Friday
+    - cron: '0 3 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  matrix-workers:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 14 # Keeps within GitHub free concurrency quotas
+      matrix:
+        sector: [NIFTY_BANK, NIFTY_PHARMA, NIFTY_AUTO, NIFTY_IT, NIFTY_METAL, NIFTY_FMCG, NIFTY_REALTY]
+        timeframe: [5, 14, 21, 63]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Train 5 Model Families for ${{ matrix.sector }} (${{ matrix.timeframe }}D)
+        run: |
+          python matrix_worker.py --sector ${{ matrix.sector }} --model gru --lookback ${{ matrix.timeframe }}
+          python matrix_worker.py --sector ${{ matrix.sector }} --model xgboost --lookback ${{ matrix.timeframe }}
+          python matrix_worker.py --sector ${{ matrix.sector }} --model lightgbm --lookback ${{ matrix.timeframe }}
+          python matrix_worker.py --sector ${{ matrix.sector }} --model catboost --lookback ${{ matrix.timeframe }}
+          python matrix_worker.py --sector ${{ matrix.sector }} --model random_forest --lookback ${{ matrix.timeframe }}
+
+      - name: Upload Node Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-${{ matrix.sector }}-${{ matrix.timeframe }}
+          path: output/
+          retention-days: 1
+
+  sector-meta-brain:
+    needs: matrix-workers
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download all 140 node artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all_nodes/
+
+      - name: Run Multi-Sector Meta-Ensemble
+        run: python meta_ensemble.py
+
+      - name: Commit Sector Regimes
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add sector_regimes.json
+
+          if git diff --staged --quiet; then
+            echo "No change in sector regimes."
+          else
+            git commit -m "Update 140-Node Sector Regimes [skip ci]"
+            git push
+          fi
