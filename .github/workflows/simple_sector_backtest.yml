@@ -1,0 +1,51 @@
+name: Simple Sector Backtest
+
+on:
+  workflow_run:
+    workflows: ["140-Node Sectoral Hive Mind"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  run-simple-sector-backtest:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Simple Sector Backtest Engine
+        run: python simple_sector_backtest.py
+
+      - name: Commit Backtest Artifacts
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add simple_sector_backtest.json simple_sector_backtest_chart.png
+          
+          if git diff --staged --quiet; then
+            echo "No changes in backtest outputs to commit."
+          else
+            git commit -m "Update simple sector backtest metrics and chart [skip ci]"
+            for i in {1..5}; do
+              git pull --rebase origin main && git push origin main && break
+              echo "Push rejected due to remote changes. Retrying ($i/5) in 3s..."
+              sleep 3
+            done
+          fi
