@@ -1,75 +1,75 @@
 {
-  "updated_at": "2026-09-12 19:58:35 UTC",
+  "updated_at": "2026-09-12 20:51:14 UTC",
   "total_nodes_evaluated": 140,
   "sectors": {
     "NIFTY_BANK": {
       "regime_id": 0,
       "actionable_regime": "True_Bearish_Distribution",
-      "confidence": 0.4089,
+      "confidence": 0.393,
       "class_probabilities": {
-        "Bearish": 0.4089,
-        "Choppy": 0.333,
-        "Bullish": 0.2581
+        "Bearish": 0.393,
+        "Choppy": 0.3446,
+        "Bullish": 0.2623
       }
     },
     "NIFTY_PHARMA": {
-      "regime_id": 1,
-      "actionable_regime": "Choppy_or_Steady_Consolidation",
-      "confidence": 0.3604,
+      "regime_id": 0,
+      "actionable_regime": "True_Bearish_Distribution",
+      "confidence": 0.4228,
       "class_probabilities": {
-        "Bearish": 0.3421,
-        "Choppy": 0.3604,
-        "Bullish": 0.2976
+        "Bearish": 0.4228,
+        "Choppy": 0.3205,
+        "Bullish": 0.2567
       }
     },
     "NIFTY_AUTO": {
       "regime_id": 1,
       "actionable_regime": "Choppy_or_Steady_Consolidation",
-      "confidence": 0.4696,
+      "confidence": 0.4669,
       "class_probabilities": {
-        "Bearish": 0.3024,
-        "Choppy": 0.4696,
-        "Bullish": 0.228
+        "Bearish": 0.2715,
+        "Choppy": 0.4669,
+        "Bullish": 0.2616
       }
     },
     "NIFTY_IT": {
       "regime_id": 2,
       "actionable_regime": "High_Momentum_Bull_Breakout",
-      "confidence": 0.511,
+      "confidence": 0.379,
       "class_probabilities": {
-        "Bearish": 0.2475,
-        "Choppy": 0.2415,
-        "Bullish": 0.511
+        "Bearish": 0.285,
+        "Choppy": 0.336,
+        "Bullish": 0.379
       }
     },
     "NIFTY_METAL": {
       "regime_id": 0,
       "actionable_regime": "True_Bearish_Distribution",
-      "confidence": 0.4247,
+      "confidence": 0.4228,
       "class_probabilities": {
-        "Bearish": 0.4247,
-        "Choppy": 0.3329,
-        "Bullish": 0.2423
+        "Bearish": 0.4228,
+        "Choppy": 0.3569,
+        "Bullish": 0.2202
       }
     },
     "NIFTY_FMCG": {
-      "regime_id": 0,
-      "actionable_regime": "True_Bearish_Distribution",
-      "confidence": 0.3841,
+      "regime_id": 1,
+      "actionable_regime": "Choppy_or_Steady_Consolidation",
+      "confidence": 0.3925,
       "class_probabilities": {
-        "Bearish": 0.3841,
-        "Choppy": 0.3266,
-        "Bullish": 0.2893
+        "Bearish": 0.305,
+        "Choppy": 0.3925,
+        "Bullish": 0.3025
       }
     },
     "NIFTY_REALTY": {
-      "regime_id": 1,
-      "actionable_regime": "Choppy_or_Steady_Consolidation",
-      "confidence": 0.3648,
+      "regime_id": 2,
+      "actionable_regime": "High_Momentum_Bull_Breakout",
+      "confidence": 0.3834,
       "class_probabilities": {
-        "Bearish": 0.2921,
-        "Choppy": 0.3648,
-        "Bullish": 0.3431
+        "Bearish": 0.36,
+        "Choppy": 0.2566,
+        "Bullish": 0.3834
       }
     }
   }
