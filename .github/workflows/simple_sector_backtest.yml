@@ -15,9 +15,11 @@ jobs:
       contents: write
 
     steps:
+      # Explicitly checkout main branch with full history
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Setup Python
@@ -29,6 +31,10 @@ jobs:
       - name: Install Dependencies
         run: pip install -r requirements.txt
 
+      # Pull latest commits pushed by 140_node_hive.yml
+      - name: Sync Latest Commits
+        run: git pull origin main --rebase
+
       - name: Run Simple Sector Backtest Engine
         run: python simple_sector_backtest.py
 
@@ -36,16 +42,18 @@ jobs:
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git add simple_sector_backtest.json simple_sector_backtest_chart.png
-          
+
+          # Safely stage only if files exist (prevents exit code 128)
+          [ -f simple_sector_backtest.json ] && git add simple_sector_backtest.json
+          [ -f simple_sector_backtest_chart.png ] && git add simple_sector_backtest_chart.png
+
           if git diff --staged --quiet; then
-            echo "No changes in backtest outputs to commit."
+            echo "No changes to commit."
           else
             git commit -m "Update simple sector backtest metrics and chart [skip ci]"
             for i in {1..5}; do
               git pull --rebase origin main && git push origin main && break
-              echo "Push rejected due to remote changes. Retrying ($i/5) in 3s..."
+              echo "Push rejected, retrying in 3s..."
               sleep 3
             done
           fi
