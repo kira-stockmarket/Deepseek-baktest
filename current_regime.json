@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-09-12 15:48:52 UTC",
+  "updated_at": "2026-09-12 16:10:46 UTC",
   "matrix_nodes_reporting": 20,
   "master_actionable_regime": "Choppy_or_Steady_Consolidation",
-  "master_confidence": 0.3711,
+  "master_confidence": 0.3809,
   "probabilities": {
-    "True_Bearish_Distribution": 0.2639,
-    "Choppy_or_Steady_Consolidation": 0.3711,
-    "High_Momentum_Bull_Breakout": 0.365
+    "True_Bearish_Distribution": 0.3161,
+    "Choppy_or_Steady_Consolidation": 0.3809,
+    "High_Momentum_Bull_Breakout": 0.303
   }
 }

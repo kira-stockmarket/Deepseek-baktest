@@ -1,9 +1,9 @@
 {
-  "evaluation_timestamp": "2026-09-12 15:52:08 UTC",
+  "evaluation_timestamp": "2026-09-12 16:10:48 UTC",
   "evaluated_file": "master_ensemble_history.csv",
   "evaluated_column": "Actionable_Regime_Name",
   "total_days_evaluated": 873,
-  "overall_strict_accuracy_5D": 56.93,
+  "overall_strict_accuracy_5D": 45.7,
   "grading_criteria": {
     "High_Momentum_Bull_Breakout": "Market moved UP > 1.5% over 5 days",
     "True_Bearish_Distribution": "Market moved DOWN < -1.0% over 5 days",
@@ -11,28 +11,28 @@
   },
   "regime_performance_breakdown": [
     {
-      "regime_name": "Choppy_or_Steady_Consolidation",
-      "total_occurrences": 817,
-      "strict_prediction_hit_rate_5D": 57.53,
-      "average_forward_1_day_return": 0.027,
-      "average_forward_5_day_return": 0.129,
-      "average_forward_20_day_return": 0.61
+      "regime_name": "High_Momentum_Bull_Breakout",
+      "total_occurrences": 386,
+      "strict_prediction_hit_rate_5D": 29.02,
+      "average_forward_1_day_return": 0.122,
+      "average_forward_5_day_return": 0.609,
+      "average_forward_20_day_return": 1.259
     },
     {
-      "regime_name": "High_Momentum_Bull_Breakout",
-      "total_occurrences": 41,
-      "strict_prediction_hit_rate_5D": 56.1,
-      "average_forward_1_day_return": 0.338,
-      "average_forward_5_day_return": 1.539,
-      "average_forward_20_day_return": 2.849
+      "regime_name": "Choppy_or_Steady_Consolidation",
+      "total_occurrences": 332,
+      "strict_prediction_hit_rate_5D": 65.36,
+      "average_forward_1_day_return": 0.012,
+      "average_forward_5_day_return": 0.065,
+      "average_forward_20_day_return": 0.598
     },
     {
       "regime_name": "True_Bearish_Distribution",
-      "total_occurrences": 15,
-      "strict_prediction_hit_rate_5D": 26.67,
-      "average_forward_1_day_return": -0.204,
-      "average_forward_5_day_return": -0.309,
-      "average_forward_20_day_return": 1.698
+      "total_occurrences": 155,
+      "strict_prediction_hit_rate_5D": 45.16,
+      "average_forward_1_day_return": -0.119,
+      "average_forward_5_day_return": -0.601,
+      "average_forward_20_day_return": -0.281
     }
   ]
 }

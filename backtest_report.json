@@ -1,5 +1,5 @@
 {
-  "backtest_run_time": "2026-09-12 15:48:53 UTC",
+  "backtest_run_time": "2026-09-12 16:10:47 UTC",
   "total_trading_days": 893,
   "benchmark_buy_and_hold": {
     "Annualized_Return": 0.0782,
@@ -8,13 +8,13 @@
     "Max_Drawdown": -0.1602
   },
   "ensemble_strategy": {
-    "Annualized_Return": 0.063,
-    "Annualized_Volatility": 0.0739,
-    "Sharpe_Ratio": 0.8524,
-    "Max_Drawdown": -0.0944
+    "Annualized_Return": 0.1285,
+    "Annualized_Volatility": 0.0943,
+    "Sharpe_Ratio": 1.3633,
+    "Max_Drawdown": -0.0765
   },
   "strategy_edge": {
-    "cagr_difference": -0.0152,
-    "max_drawdown_reduction": 0.0658
+    "cagr_difference": 0.0503,
+    "max_drawdown_reduction": 0.0837
   }
 }
