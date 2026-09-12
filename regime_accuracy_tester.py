@@ -1,101 +1,84 @@
 import json
-from datetime import datetime
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
+plt.switch_backend("Agg")
 
-def grade_prediction(row, forward_col: str = "Fwd_5D_Ret", regime_col: str = "Actionable_Regime_Name"):
-    """
-    Grades whether forward market performance matched the regime's statistical expectation.
-    - Bullish & Pre-Breakout: Market went UP over the forward window.
-    - Bearish: Market went DOWN over the forward window.
-    """
-    regime = str(row[regime_col])
-    ret = row[forward_col]
+def calculate_drawdown(equity_curve: pd.Series) -> float:
+    peak = equity_curve.expanding(min_periods=1).max()
+    drawdown = (equity_curve / peak) - 1
+    return float(drawdown.min())
 
-    if pd.isna(ret):
-        return None
+def get_performance_metrics(returns_series: pd.Series, equity_curve: pd.Series) -> dict:
+    ann_return = returns_series.mean() * 252
+    ann_vol = returns_series.std() * np.sqrt(252)
+    sharpe = (ann_return / ann_vol) if ann_vol > 0 else 0
+    max_dd = calculate_drawdown(equity_curve)
 
-    if regime in ["High_Conviction_Bull", "Steady_Uptrend", "Pre_Breakout_Accumulation"]:
-        return 1 if ret > 0 else 0
-    elif regime in ["Bearish_Distribution", "Market_Crash"]:
-        return 1 if ret < 0 else 0
-    elif regime == "Sideways_Consolidation":
-        return 1 if -0.015 <= ret <= 0.015 else 0
-    else:
-        return 1 if ret > 0 else 0
-
-
-def main():
-    print("Loading regime history for accuracy testing...")
-    try:
-        df = pd.read_csv("regime_history.csv", index_col=0, parse_dates=True)
-    except FileNotFoundError:
-        print("Error: 'regime_history.csv' not found. Run deep_regime_engine.py first.")
-        return
-
-    # Detect the appropriate regime column
-    if "Actionable_Regime_Name" in df.columns:
-        regime_col = "Actionable_Regime_Name"
-    elif "Regime_Name" in df.columns:
-        regime_col = "Regime_Name"
-    elif "Raw_Regime_Name" in df.columns:
-        regime_col = "Raw_Regime_Name"
-    else:
-        raise KeyError("No valid regime column found in regime_history.csv")
-
-    print(f"Testing accuracy using column: '{regime_col}'")
-
-    # Forward returns (lookahead for evaluation only)
-    df["Fwd_1D_Ret"] = df["Close"].shift(-1) / df["Close"] - 1
-    df["Fwd_5D_Ret"] = df["Close"].shift(-5) / df["Close"] - 1
-    df["Fwd_20D_Ret"] = df["Close"].shift(-20) / df["Close"] - 1
-
-    # Grade accuracy across forward horizons
-    df["Is_Correct_5D"] = df.apply(lambda r: grade_prediction(r, "Fwd_5D_Ret", regime_col), axis=1)
-
-    # Drop latest rows that do not have forward lookahead outcomes yet
-    df_eval = df.dropna(subset=["Fwd_20D_Ret", "Is_Correct_5D"])
-
-    report_data = []
-    total_eval = len(df_eval)
-    total_correct = int(df_eval["Is_Correct_5D"].sum())
-
-    for regime_name, group in df_eval.groupby(regime_col):
-        count = len(group)
-        correct_count = int(group["Is_Correct_5D"].sum())
-        hit_rate = (correct_count / count) * 100 if count > 0 else 0.0
-
-        report_data.append({
-            "regime_name": regime_name,
-            "total_occurrences": count,
-            "prediction_hit_rate_5D": round(hit_rate, 2),
-            "average_forward_1_day_return": round(float(group["Fwd_1D_Ret"].mean() * 100), 3),
-            "average_forward_5_day_return": round(float(group["Fwd_5D_Ret"].mean() * 100), 3),
-            "average_forward_20_day_return": round(float(group["Fwd_20D_Ret"].mean() * 100), 3)
-        })
-
-    # Sort report by sample size
-    report_data = sorted(report_data, key=lambda x: x["total_occurrences"], reverse=True)
-
-    final_report = {
-        "evaluation_timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
-        "tested_regime_column": regime_col,
-        "total_days_evaluated": total_eval,
-        "overall_model_accuracy_5D": round((total_correct / total_eval) * 100, 2),
-        "definition_of_correct": {
-            "Bull_and_Accumulation": "Market moved POSITIVE over the next 5 days",
-            "Bearish_Distribution": "Market moved NEGATIVE over the next 5 days"
-        },
-        "regime_performance_breakdown": report_data
+    return {
+        "Annualized_Return": round(float(ann_return), 4),
+        "Annualized_Volatility": round(float(ann_vol), 4),
+        "Sharpe_Ratio": round(float(sharpe), 4),
+        "Max_Drawdown": round(float(max_dd), 4)
     }
 
-    with open("regime_accuracy_report.json", "w") as f:
-        json.dump(final_report, f, indent=2)
+def main():
+    print("Loading 20-Node Ensemble historical data...")
+    try:
+        df = pd.read_csv("master_ensemble_history.csv", index_col=0, parse_dates=True)
+    except FileNotFoundError:
+        print("Error: 'master_ensemble_history.csv' not found. Run meta_ensemble.py first.")
+        return
 
-    print("\nAccuracy audit complete. Saved to 'regime_accuracy_report.json'.")
-    print(f"Overall 5-Day Directional Hit Rate: {final_report['overall_model_accuracy_5D']}%")
+    # Production allocation map for the Meta-Learner outputs:
+    allocation_map = {
+        "High_Momentum_Bull_Breakout": 1.0,     # 100% Long
+        "Choppy_or_Steady_Consolidation": 0.5,  # 50% Capital (Risk reduction)
+        "True_Bearish_Distribution": 0.0        # 100% Cash (Avoid the crash)
+    }
 
+    df["Target_Position"] = df["Actionable_Regime_Name"].map(allocation_map).fillna(0.5)
+
+    # 1-day lag to eliminate lookahead bias
+    df["Actual_Position"] = df["Target_Position"].shift(1).fillna(0.5)
+
+    df["Strategy_Returns"] = df["Actual_Position"] * df["Returns"]
+    df["Benchmark_Equity"] = (1 + df["Returns"]).cumprod()
+    df["Strategy_Equity"] = (1 + df["Strategy_Returns"]).cumprod()
+
+    bench_metrics = get_performance_metrics(df["Returns"], df["Benchmark_Equity"])
+    strat_metrics = get_performance_metrics(df["Strategy_Returns"], df["Strategy_Equity"])
+
+    report = {
+        "backtest_run_time": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "total_trading_days": len(df),
+        "benchmark_buy_and_hold": bench_metrics,
+        "ensemble_matrix_strategy": strat_metrics,
+        "strategy_edge": {
+            "cagr_difference": round(strat_metrics["Annualized_Return"] - bench_metrics["Annualized_Return"], 4),
+            "max_drawdown_reduction": round(abs(bench_metrics["Max_Drawdown"]) - abs(strat_metrics["Max_Drawdown"]), 4)
+        }
+    }
+
+    with open("backtest_report.json", "w") as f:
+        json.dump(report, f, indent=2)
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(df.index, df["Benchmark_Equity"], label=f"Nifty Buy & Hold (Sharpe: {bench_metrics['Sharpe_Ratio']})", color="#7f8c8d", alpha=0.65, linewidth=1.2)
+    plt.plot(df.index, df["Strategy_Equity"], label=f"20-Node Ensemble (Sharpe: {strat_metrics['Sharpe_Ratio']})", color="#2ecc71", linewidth=1.8)
+
+    plt.title("Nifty 50: 20-Node Meta-Ensemble Strategy vs. Buy & Hold", fontsize=14, pad=12)
+    plt.ylabel("Cumulative Growth (Log Scale)", fontsize=11)
+    plt.yscale("log")
+    plt.grid(True, which="both", alpha=0.2, linestyle="--")
+    plt.legend(loc="upper left", framealpha=0.9)
+    plt.tight_layout()
+
+    plt.savefig("backtest_chart.png", dpi=250)
+    print("Backtest complete! Chart saved to 'backtest_chart.png'.")
+    print(f"Max Drawdown Reduction: {report['strategy_edge']['max_drawdown_reduction']*100:.1f}%")
 
 if __name__ == "__main__":
     main()
