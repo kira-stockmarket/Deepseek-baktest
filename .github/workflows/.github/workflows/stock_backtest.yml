@@ -1,0 +1,45 @@
+name: Stock Strategy Backtest
+
+on:
+  workflow_run:
+    workflows: ["20-Node Hive Mind Pipeline"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  run-stock-backtest:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Execute Stock Strategy Backtest
+        run: python backtest_stock_strategy.py
+
+      - name: Commit Backtest Artifacts
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add stock_backtest_report.json stock_backtest_chart.png
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update stock strategy backtest metrics and chart [skip ci]"
+            git push
+          fi
