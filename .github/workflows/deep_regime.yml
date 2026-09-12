@@ -1,22 +1,23 @@
-name: 20-Node Stacking Ensemble
+name: 20-Node Hive Mind Pipeline
 
 on:
   schedule:
     # Runs daily at 03:00 UTC (8:30 AM IST), Mon-Fri
     - cron: '0 3 * * 1-5' 
-  workflow_dispatch:
+  workflow_dispatch: # Allows you to trigger it manually via a button
 
 jobs:
   matrix-workers:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false # If one node fails (e.g., CatBoost timeout), the other 19 keep running
+      fail-fast: false # If one node fails, the other 19 keep running
       matrix:
         model: [gru, xgboost, lightgbm, catboost, random_forest]
         timeframe: [5, 14, 21, 63]
     
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-python@v5
         with: 
           python-version: '3.11'
@@ -39,9 +40,10 @@ jobs:
     needs: matrix-workers
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Required to push the JSON back to your repo
+      contents: write # Required to push the files back to your repo
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-python@v5
         with: 
           python-version: '3.11'
@@ -56,36 +58,35 @@ jobs:
         with: 
           path: all_nodes/
           
-      - name: Run Meta-Ensemble Stacker
+      - name: 1. Run Meta-Ensemble Stacker
         run: python meta_ensemble.py
         
-      - name: Commit Master Prediction
-        run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add current_regime.json
-          # Only commit if the JSON actually changed
-          if git diff --staged --quiet; then
-            echo "No state change. Skipping commit."
-          else
+      - name: 2. Run Backtest Engine
+        run: python backtest_engine.py
 
-          - name: Run Meta-Ensemble Stacker
-        run: python meta_ensemble.py
+      - name: 3. Run Regime Accuracy Tester
+        run: python regime_accuracy_tester.py
         
-      - name: Generate Visual Dashboard
+      - name: 4. Generate Visual Dashboard
         run: python generate_dashboard.py
         
-      - name: Commit Master Prediction & Dashboard
+      - name: Commit Master Prediction & Assets
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add current_regime.json index.html master_ensemble_history.csv
+          
+          # Stage all generated outputs
+          git add current_regime.json \
+                  master_ensemble_history.csv \
+                  backtest_report.json \
+                  backtest_chart.png \
+                  regime_accuracy_report.json \
+                  index.html
+                  
+          # Only commit if the files actually changed
           if git diff --staged --quiet; then
             echo "No state change. Skipping commit."
           else
-            git commit -m "Update Hive Mind Ensemble and Dashboard [skip ci]"
-            git push
-          fi
-            git commit -m "Update master ensemble prediction [skip ci]"
+            git commit -m "Update Hive Mind Ensemble, Backtests, and Dashboard [skip ci]"
             git push
           fi
