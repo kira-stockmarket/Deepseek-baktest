@@ -1,44 +1,38 @@
 {
-  "evaluation_timestamp": "2026-09-12 14:36:39 UTC",
-  "tested_regime_column": "Actionable_Regime_Name",
-  "total_days_evaluated": 4471,
-  "overall_model_accuracy_5D": 56.27,
-  "definition_of_correct": {
-    "Bull_and_Accumulation": "Market moved POSITIVE over the next 5 days",
-    "Bearish_Distribution": "Market moved NEGATIVE over the next 5 days"
+  "evaluation_timestamp": "2026-09-12 15:48:54 UTC",
+  "evaluated_file": "master_ensemble_history.csv",
+  "evaluated_column": "Actionable_Regime_Name",
+  "total_days_evaluated": 873,
+  "overall_strict_accuracy_5D": 56.93,
+  "grading_criteria": {
+    "High_Momentum_Bull_Breakout": "Market moved UP > 1.5% over 5 days",
+    "True_Bearish_Distribution": "Market moved DOWN < -1.0% over 5 days",
+    "Choppy_or_Steady_Consolidation": "Market stayed bounded between -1.0% and +1.5% over 5 days"
   },
   "regime_performance_breakdown": [
     {
-      "regime_name": "Steady_Uptrend",
-      "total_occurrences": 2036,
-      "prediction_hit_rate_5D": 56.83,
-      "average_forward_1_day_return": 0.028,
-      "average_forward_5_day_return": 0.151,
-      "average_forward_20_day_return": 0.476
+      "regime_name": "Choppy_or_Steady_Consolidation",
+      "total_occurrences": 817,
+      "strict_prediction_hit_rate_5D": 57.53,
+      "average_forward_1_day_return": 0.027,
+      "average_forward_5_day_return": 0.129,
+      "average_forward_20_day_return": 0.61
     },
     {
-      "regime_name": "Choppy_Consolidation",
-      "total_occurrences": 1858,
-      "prediction_hit_rate_5D": 55.49,
-      "average_forward_1_day_return": 0.037,
-      "average_forward_5_day_return": 0.152,
-      "average_forward_20_day_return": 0.662
-    },
-    {
-      "regime_name": "High_Momentum_Bull",
-      "total_occurrences": 470,
-      "prediction_hit_rate_5D": 58.72,
-      "average_forward_1_day_return": 0.179,
-      "average_forward_5_day_return": 0.907,
-      "average_forward_20_day_return": 3.095
+      "regime_name": "High_Momentum_Bull_Breakout",
+      "total_occurrences": 41,
+      "strict_prediction_hit_rate_5D": 56.1,
+      "average_forward_1_day_return": 0.338,
+      "average_forward_5_day_return": 1.539,
+      "average_forward_20_day_return": 2.849
     },
     {
       "regime_name": "True_Bearish_Distribution",
-      "total_occurrences": 107,
-      "prediction_hit_rate_5D": 48.6,
-      "average_forward_1_day_return": -0.13,
-      "average_forward_5_day_return": -0.415,
-      "average_forward_20_day_return": 2.162
+      "total_occurrences": 15,
+      "strict_prediction_hit_rate_5D": 26.67,
+      "average_forward_1_day_return": -0.204,
+      "average_forward_5_day_return": -0.309,
+      "average_forward_20_day_return": 1.698
     }
   ]
 }
