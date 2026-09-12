@@ -5,6 +5,9 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 from sklearn.linear_model import LogisticRegression
+import warnings
+
+warnings.filterwarnings("ignore")
 
 def main():
     print("Initializing Meta-Learner Matrix Stacking...")
@@ -26,8 +29,8 @@ def main():
         df = df.rename(columns={"P0": f"{node_name}_P0", "P1": f"{node_name}_P1", "P2": f"{node_name}_P2"})
         node_dataframes.append(df)
     
-    # Merge all 20 nodes together by date
-    meta_df = pd.concat(node_dataframes, axis=1).dropna()
+    # Merge all 20 nodes together by date (sort=False fixes the Pandas warning)
+    meta_df = pd.concat(node_dataframes, axis=1, sort=False).dropna()
     
     # The true outcome is identical across nodes, we just need one column of it
     target = meta_df.iloc[:, meta_df.columns.get_loc("True_Target")].iloc[:, 0] if isinstance(meta_df["True_Target"], pd.DataFrame) else meta_df["True_Target"]
@@ -37,8 +40,8 @@ def main():
     X_meta = meta_df[feature_cols]
     y_meta = target.astype(int)
     
-    # 3. Train the Meta-Learner (Logistic Regression prevents overfitting at the ensemble layer)
-    stacker = LogisticRegression(max_iter=1000, multi_class='multinomial')
+    # 3. Train the Meta-Learner (Removed deprecated multi_class arg)
+    stacker = LogisticRegression(max_iter=1000)
     stacker.fit(X_meta, y_meta)
     
     print(f"Meta-Learner trained on {len(X_meta)} Out-Of-Sample days across {len(csv_files)} models.")
