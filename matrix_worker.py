@@ -18,8 +18,19 @@ import warnings
 warnings.filterwarnings("ignore")
 
 def fetch_and_prep_data(lookback: int):
-    nifty = yf.download("^NSEI", period="max", auto_adjust=True, progress=False)["Close"].rename("NIFTY")
-    vix = yf.download("^INDIAVIX", period="max", auto_adjust=True, progress=False)["Close"].rename("VIX")
+    nifty_raw = yf.download("^NSEI", period="max", auto_adjust=True, progress=False)
+    vix_raw = yf.download("^INDIAVIX", period="max", auto_adjust=True, progress=False)
+
+    # 1. Safely handle new yfinance MultiIndex output (The Fix)
+    if isinstance(nifty_raw.columns, pd.MultiIndex):
+        nifty_raw.columns = nifty_raw.columns.get_level_values(0)
+    if isinstance(vix_raw.columns, pd.MultiIndex):
+        vix_raw.columns = vix_raw.columns.get_level_values(0)
+
+    # 2. Extract and rename as 1D Series
+    nifty = nifty_raw["Close"].rename("NIFTY")
+    vix = vix_raw["Close"].rename("VIX")
+    
     df = pd.concat([nifty, vix], axis=1).dropna()
 
     # Features tailored to this node's specific lookback window
@@ -72,6 +83,7 @@ def train_gru(X_train, y_train, X_test):
     with torch.no_grad():
         preds = model(X_te_t).numpy()
     return preds, model
+
 
 def main():
     parser = argparse.ArgumentParser()
