@@ -1,45 +1,62 @@
-name: Deep ML Nifty Regime Auto-Tuner
+name: Max Capacity Ensemble Matrix
 
 on:
   schedule:
-    # Runs at 03:00 UTC (08:30 AM IST), Monday through Friday
-    - cron: '0 3 * * 1-5'
+    - cron: '0 3 * * 1-5' # Runs daily before market open
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  run-deep-regime:
+  matrix-workers:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # This defines exactly 20 simultaneous servers (5 models * 4 timeframes)
+        model: [gru, xgboost, lightgbm, catboost, random_forest]
+        timeframe: [5, 14, 21, 63]
+    
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11', cache: 'pip' }
+      
+      - run: pip install -r requirements.txt
+      
+      # Each server runs its unique combination 
+      # (e.g., Server 7 runs LightGBM on 21-day data)
+      - name: Train Individual Matrix Node
+        run: python matrix_worker.py --model ${{ matrix.model }} --lookback ${{ matrix.timeframe }}
+        
+      - name: Upload Node Prediction
+        uses: actions/upload-artifact@v4
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          name: node-${{ matrix.model }}-${{ matrix.timeframe }}
+          path: output/
+          retention-days: 1
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          # Explicitly install CPU-only PyTorch for speed and zero memory leaks
-          pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install -r requirements.txt
-
-      - name: Auto-Tune and Train Neural Network
-        run: python deep_regime_engine.py
-
-      - name: Commit and push updated regime files
+  meta-brain:
+    needs: matrix-workers
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -r requirements.txt
+      
+      # Download all 20 predictions
+      - uses: actions/download-artifact@v4
+        with: { path: all_nodes/ }
+        
+      # The Meta-Learner evaluates all 20 nodes and makes the final, high-accuracy call
+      - name: Run Meta-Ensemble Stacking
+        run: python meta_ensemble.py
+        
+      - name: Commit Final High-Accuracy Regime
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add current_regime.json regime_history.csv
-          if git diff --staged --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "Optimize PyTorch hyperparameters and update regime [skip ci]"
-            git push
-          fi
+          git add current_regime.json
+          git commit -m "Update master ensemble prediction [skip ci]" || echo "No changes"
+          git push
