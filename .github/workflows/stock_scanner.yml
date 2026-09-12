@@ -1,0 +1,49 @@
+name: Nifty Next 50 Stock Scanner
+
+on:
+  # This automatically triggers this workflow right after the main Hive Mind finishes
+  workflow_run:
+    workflows: ["20-Node Hive Mind Pipeline"] # This must match the exact 'name:' in deep_regime.yml
+    types:
+      - completed
+      
+  # Also allows you to run it manually
+  workflow_dispatch: 
+
+jobs:
+  scan-stocks:
+    runs-on: ubuntu-latest
+    # Only run this if the Hive Mind succeeded, OR if triggered manually
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    permissions:
+      contents: write # Required to push the JSON back to your repo
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Nifty Next 50 Scanner
+        run: python nifty_next50_scanner.py
+
+      - name: Commit Stock Signals
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add next50_signals.json
+          
+          if git diff --staged --quiet; then
+            echo "No state change. Skipping commit."
+          else
+            git commit -m "Update Nifty Next 50 buy signals [skip ci]"
+            git push
+          fi
