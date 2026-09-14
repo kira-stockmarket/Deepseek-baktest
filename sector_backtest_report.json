@@ -1,14 +1,14 @@
 {
-  "trades": 247,
-  "win_rate": 56.28,
+  "trades": 251,
+  "win_rate": 56.57,
   "strategy": {
-    "CAGR": 0.0333,
-    "Sharpe_Ratio": 1.0698,
+    "CAGR": 0.034,
+    "Sharpe_Ratio": 1.0835,
     "Max_Drawdown": -0.0339
   },
   "benchmark": {
-    "CAGR": 0.2138,
-    "Sharpe_Ratio": 1.5355,
-    "Max_Drawdown": -0.1942
+    "CAGR": 0.2155,
+    "Sharpe_Ratio": 1.5374,
+    "Max_Drawdown": -0.1931
   }
 }
